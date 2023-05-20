@@ -1,4 +1,9 @@
-// This is the main function.
+//! Rust Hello World Example
+//! 
+//! This rust example provides basic example
+//! that prints "Hello World!" to io::stdout
+//! 
+
 fn main() {
     // Statements here are executed when the compiled binary is called.
 
@@ -42,7 +47,12 @@ fn main() {
     let x = 5 + /* 90 + */ 5;
     println!("Is `x` 10 or 100? x = {}", x);
 
-
+    /// This is the struct to hold data about a person
+    /// 
+    /// ```
+    /// let person = MyStruct { name: "Emre", surname: "Ergun", age: 34};
+    /// ```
+    ///
     struct MyStruct {
         name: String,
         surname: String,
@@ -125,7 +135,18 @@ fn main() {
 
     let pi = 3.141592;
     println!("Pi is roughly {:>.width$}", pi, width = 3);
+    print_hello();
+
+}
 
 
-
+/// This function prints  "Hello" to io::stdout
+/// 
+/// ```
+/// print_hello();
+/// 
+/// ````
+/// no argument used
+fn print_hello() {
+    println!("Hello");
 }
