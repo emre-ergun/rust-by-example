@@ -104,5 +104,4 @@ fn main() {
 
     // Error! Previous `destroy` call "consumed" `pair`
     //pair.destroy();
-    // TODO ^ Try uncommenting this line
 }
