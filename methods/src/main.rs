@@ -101,7 +101,5 @@ fn main() {
     let pair = Pair(Box::new(1), Box::new(2));
 
     pair.destroy();
-
-    // Error! Previous `destroy` call "consumed" `pair`
-    //pair.destroy();
+    //pair.destroy(); // error because usage of moved value
 }
