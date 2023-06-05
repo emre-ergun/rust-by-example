@@ -1,5 +1,22 @@
 use std::mem;
 
+// <F> denotes that F is a "Generic type parameter"
+fn apply<F>(f: F) where
+    // The closure takes no input and returns nothing.
+    F: FnOnce() {
+    // ^ TODO: Try changing this to `Fn` or `FnMut`.
+
+    f();
+}
+
+// A function which takes a closure and returns an `i32`.
+fn apply_to_3<F>(f: F) -> i32 where
+    // The closure takes an `i32` and returns an `i32`.
+    F: Fn(i32) -> i32 {
+
+    f(3)
+}
+
 fn main() {
     let outer_var = 42;
     
@@ -12,7 +29,7 @@ fn main() {
     // as are the `{}` wrapping the body. These nameless functions
     // are assigned to appropriately named variables.
     let closure_annotated = |i: i32| -> i32 { i + outer_var };
-    let closure_inferred  = |i     |          i + outer_var  ;
+    let closure_inferred  = |i| { i + outer_var };
 
     // Call the closures.
     println!("closure_annotated: {}", closure_annotated(1));
@@ -94,7 +111,7 @@ fn main() {
     // `Vec` has non-copy semantics.
     let haystack = vec![1, 2, 3];
 
-    let contains =  |needle| haystack.contains(needle);
+    let contains =  /*move*/ |needle| { haystack.contains(needle) };
 
     println!("{}", contains(&1));
     println!("{}", contains(&4));
@@ -107,6 +124,92 @@ fn main() {
     // Removing `move` from closure's signature will cause closure
     // to borrow _haystack_ variable immutably, hence _haystack_ is still
     // available and uncommenting above line will not cause an error.
-    
 
+
+    let greeting = "hello";
+    // A non-copy type.
+    // `to_owned` creates owned data from borrowed one
+    let mut farewell = "goodbye".to_owned();
+
+    // Capture 2 variables: `greeting` by reference and
+    // `farewell` by value.
+    let diary = || {
+        // `greeting` is by reference: requires `Fn`.
+        println!("I said {}.", greeting);
+
+        // Mutation forces `farewell` to be captured by
+        // mutable reference. Now requires `FnMut`.
+        farewell.push_str("!!!");
+        println!("Then I screamed {}.", farewell);
+        println!("Now I can sleep. zzzzz");
+
+        // Manually calling drop forces `farewell` to
+        // be captured by value. Now requires `FnOnce`.
+        mem::drop(farewell);
+    };
+
+    // Call the function which applies the closure.
+    apply(diary);
+
+    // `double` satisfies `apply_to_3`'s trait bound
+    let double = |x| 2 * x;
+
+    println!("3 doubled: {}", apply_to_3(double));
+
+    let x = 7;
+
+    // Capture `x` into an anonymous type and implement
+    // `Fn` for it. Store it in `print`.
+    let print = || println!("{}", x);
+
+    apply(print);
+
+    let fn_plain = create_fn();
+    let mut fn_mut = create_fnmut();
+    let fn_once = create_fnonce();
+
+    fn_plain();
+    fn_mut();
+    fn_once();
+
+
+    println!("Find the sum of all the squared odd numbers under 1000");
+    let upper = 1000;
+
+    // Functional approach
+    let sum_of_squared_odd_numbers: u32 =
+        (0..).map(|n| n * n)                             // All natural numbers squared
+             .take_while(|&n_squared| n_squared < upper) // Below upper limit
+             .filter(|&n_squared| is_odd(n_squared))     // That are odd
+             .sum();                                     // Sum them
+    println!("functional style: {}", sum_of_squared_odd_numbers);
+
+    let summs: u32 = 
+        (0..).map(|n| n * n)
+        .take_while(|&n_squared| n_squared < upper)
+        .filter(|&n_squared| is_odd(n_squared))
+        .sum();
+    println!("functional style: {}", summs);
+}
+    
+fn is_odd(n: u32) -> bool {
+    n % 2 == 1
+}
+
+fn create_fn() -> impl Fn() {
+    let text = "Fn".to_owned();
+
+    move || println!("This is a: {}", text)
+}
+
+fn create_fnmut() -> impl FnMut() {
+    let text = "FnMut".to_owned();
+
+    move || println!("This is a: {}", text)
+}
+
+fn create_fnonce() -> impl FnOnce() {
+    let text = "FnOnce".to_owned();
+
+    move || println!("This is a: {}", text)
 }
